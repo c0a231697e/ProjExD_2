@@ -1,6 +1,7 @@
 import os
 import random
 import sys
+import time
 
 import pygame as pg
 
@@ -19,7 +20,7 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 def check_bound(rct: pg.Rect) -> tuple[bool, bool]:
     """
-    引数：こうかとんRect爆弾Rect
+    引数:こうかとんRect爆弾Rect
     戻り値：真理値タプル(横、縦)/画面内/True,画面外/False
     """
     yoko, tate = True, True
@@ -28,6 +29,35 @@ def check_bound(rct: pg.Rect) -> tuple[bool, bool]:
     if rct.top < 0 or HEIGHT < rct.bottom:
         tate = False
     return yoko, tate
+
+
+def gameover(screen: pg.Surface) -> None:
+    """
+    ゲームオーバー時に半透明の黒い画面にする
+    画面上に(Gane Over)と表示する
+    泣いているこうかとんの画像を貼り付ける
+    """
+
+    _bg = pg .Surface((WIDTH, HEIGHT))
+    pg.draw.rect(_bg, (0, 0, 0), (0, 0, WIDTH, HEIGHT))
+    _bg.set_alpha(200)
+    screen.blit(_bg, [0, 0])
+    # 文字の設定
+    font = pg.font.Font(None, 80)  # フォントとサイズ
+    text = font.render("Game Over", True, (255, 255, 255))  # しろの文字
+    text_rect = text.get_rect(center=(screen.get_width() // 2, screen.get_height() // 2))
+    screen.blit(text, text_rect)
+    # 画像の設定
+    crying_kk_img = pg.image.load("fig/8.png")  # 泣いているこうかとん画像の読み込み
+    crying_kk_img = pg.transform.rotozoom(crying_kk_img, 0, 1)  # サイズ調整
+    kk_rect1 = crying_kk_img.get_rect(center=(screen.get_width() // 3, screen.get_height() // 2))
+    screen.blit(crying_kk_img, kk_rect1)
+    # 右側に画像を描画
+    kk_rect_right = crying_kk_img.get_rect(center=(screen.get_width() * 2 // 3, screen.get_height() // 2))
+    screen.blit(crying_kk_img, kk_rect_right)
+    # 画面更新と5秒間の待機
+    pg.display.update()
+    time.sleep(5)
 
 
 def main():
@@ -50,6 +80,7 @@ def main():
             if event.type == pg.QUIT: 
                 return
         if kk_rct.colliderect(bb_rct):
+            gameover(screen)
             print("ゲームオーバー")
             return  # ゲームオーバー
         screen.blit(bg_img, [0, 0]) 
