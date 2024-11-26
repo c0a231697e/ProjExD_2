@@ -2,7 +2,6 @@ import os
 import random
 import sys
 import time
-
 import pygame as pg
 
 
@@ -31,16 +30,33 @@ def check_bound(rct: pg.Rect) -> tuple[bool, bool]:
     return yoko, tate
 
 
+def init_bb_imgs() -> tuple[list[pg.Surface], list[int]]:
+    """
+    時間とともに爆弾が拡大，加速する
+    戻り値:tuple 爆弾画像リストと加速度リスト
+    """
+    # 加速度のリストを作成
+    bb_accs = [a for a in range(1, 11)]  # 1から10の加速度リスト
+    # サイズが異なる爆弾Surfaceのリストを作成
+    bb_imgs = []
+    for r in range(1, 11):
+        bb_img = pg.Surface((20*r, 20*r))  # 爆弾の円形Surface
+        pg.draw.circle(bb_img, (255, 0, 0), (10*r, 10*r), 10*r)  # 円描画
+        bb_img.set_colorkey((0, 0, 0))  # 黒を透過させる
+        bb_imgs.append(bb_img)  # リストに追加
+    return bb_imgs, bb_accs
+
+
 def gameover(screen: pg.Surface) -> None:
     """
     ゲームオーバー時に半透明の黒い画面にする
     画面上に(Gane Over)と表示する
     泣いているこうかとんの画像を貼り付ける
+    引数:screen(pg.Surface)ゲームウィンドウのSurfaceオブジェクト
     """
-
     _bg = pg .Surface((WIDTH, HEIGHT))
     pg.draw.rect(_bg, (0, 0, 0), (0, 0, WIDTH, HEIGHT))
-    _bg.set_alpha(200)
+    _bg.set_alpha(200)  # 半透明の黒
     screen.blit(_bg, [0, 0])
     # 文字の設定
     font = pg.font.Font(None, 80)  # フォントとサイズ
@@ -73,9 +89,12 @@ def main():
     bb_rct = bb_img.get_rect()  # 爆弾rectの抽出
     bb_rct.center = random.randint(0, WIDTH), random.randint(0, HEIGHT)
     clock = pg.time.Clock()
+    bb_imgs, bb_accs = init_bb_imgs()  # リストを取得
     vx, vy = +5, +5  # 爆弾速度ベクトル
     tmr = 0
     while True:
+        avx = vx*bb_accs[min(tmr//500, 9)]
+        bb_img = bb_imgs[min(tmr//500, 9)]
         for event in pg.event.get():
             if event.type == pg.QUIT: 
                 return
@@ -97,7 +116,7 @@ def main():
         if check_bound(kk_rct) != (True, True):
             kk_rct.move_ip(-sum_mv[0], -sum_mv[1])
         screen.blit(kk_img, kk_rct)
-        bb_rct.move_ip(vx, vy)  # 爆弾が動く
+        bb_rct.move_ip(avx, vy)  # 爆弾が動く
         # こうかとんが画面外なら元の場所に戻す
         yoko, tate = check_bound(bb_rct)
         if not yoko:  # 横にはみ出てる
