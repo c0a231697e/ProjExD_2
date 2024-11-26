@@ -1,5 +1,5 @@
 import os
-import random
+from random import randint
 import sys
 import time
 import pygame as pg
@@ -87,7 +87,7 @@ def main():
     pg.draw.circle(bb_img, (255, 0, 0), (10, 10), 10)  # 爆弾円を描く
     bb_img.set_colorkey((0, 0, 0))  # 黒を透過させる
     bb_rct = bb_img.get_rect()  # 爆弾rectの抽出
-    bb_rct.center = random.randint(0, WIDTH), random.randint(0, HEIGHT)
+    bb_rct.center = randint(0, WIDTH), randint(0, HEIGHT)
     clock = pg.time.Clock()
     bb_imgs, bb_accs = init_bb_imgs()  # リストを取得
     vx, vy = +5, +5  # 爆弾速度ベクトル
