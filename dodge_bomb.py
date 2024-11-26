@@ -43,12 +43,15 @@ def main():
     bb_rct = bb_img.get_rect()  # 爆弾rectの抽出
     bb_rct.center = random.randint(0, WIDTH), random.randint(0, HEIGHT)
     clock = pg.time.Clock()
-    vx, vy = +5, +5
+    vx, vy = +5, +5  # 爆弾速度ベクトル
     tmr = 0
     while True:
         for event in pg.event.get():
             if event.type == pg.QUIT: 
                 return
+        if kk_rct.colliderect(bb_rct):
+            print("ゲームオーバー")
+            return  # ゲームオーバー
         screen.blit(bg_img, [0, 0]) 
 
         key_lst = pg.key.get_pressed()
